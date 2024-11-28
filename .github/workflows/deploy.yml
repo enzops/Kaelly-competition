@@ -1,0 +1,33 @@
+name: Deploy Helm Chart
+
+on:
+  workflow_run:
+    workflows:
+      - "CI"
+    types:
+      - completed
+  push:
+    tags:
+      - '*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+        - name: Checkout Code
+          uses: actions/checkout@v4
+
+        - name: Set up Kubernetes context
+          run: |
+            mkdir -p ${HOME}/.kube
+            echo "${{ secrets.KUBECONFIG }}" > ${HOME}/.kube/config
+  
+        - name: Install Helm
+          uses: azure/setup-helm@v4
+
+        - name: Deploy Helm Chart
+          run: |
+            helm upgrade --install ${{ github.event.repository.name }} charts/${{ github.event.repository.name }} \
+              --namespace kaellybot -f charts/values.yaml
+  
