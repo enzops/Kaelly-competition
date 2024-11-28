@@ -54,6 +54,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set Docker image tag
+        id: set-tag
+        run: |
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            echo "tag_name=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+          else
+            echo "tag_name=${GITHUB_SHA}" >> $GITHUB_ENV
+          fi
+
       - name: Build and push Docker images
         uses: docker/build-push-action@v6
         with:
@@ -61,6 +70,6 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ github.sha }}
+            ghcr.io/${{ github.repository }}:${{ env.tag_name }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
