@@ -75,7 +75,7 @@ tolerations: []
 
 affinity: {}
 
-envVars:
+configMap:
   PROBE_PORT: "9090"
   METRIC_PORT: "2112"
   LOG_LEVEL: "debug"
